@@ -1,0 +1,59 @@
+{
+  "name": "@quokkaquery/trueskill",
+  "version": "0.1.0",
+  "description": "TrueSkill Bayesian rating system — Gaussian skill beliefs, teams, free-for-all, match quality",
+  "keywords": [
+    "trueskill",
+    "rating",
+    "ranking",
+    "bayesian",
+    "matchmaking",
+    "leaderboard",
+    "teams",
+    "typescript"
+  ],
+  "homepage": "https://quokkaquery.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nodlume/trueskill.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Nodlume/trueskill/issues"
+  },
+  "author": {
+    "name": "QuokkaQuery",
+    "url": "https://quokkaquery.com"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "API.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}
