@@ -1,3 +1,8 @@
+/**
+ * Stateful wrapper over the core TrueSkill math: keeps a map of player
+ * ratings and win/loss/draw counters, and turns 1v1, team, and free-for-all
+ * results into in-place rating updates plus per-player deltas.
+ */
 import { resolveConfig } from "./config.js";
 import {
   conservativeRating,
@@ -33,7 +38,11 @@ export class RatingPool {
     this.initialSigma = this.config.sigma;
   }
 
-  /** Register a player with optional initial mu/sigma. */
+  /**
+   * Register a player with optional initial mu/sigma (defaulting to the
+   * resolved config). An already-registered id is returned unchanged; the
+   * supplied mu/sigma are ignored rather than overwriting its rating.
+   */
   addPlayer(id: string, mu?: number, sigma?: number): Rating {
     if (this.players.has(id)) return this.players.get(id)!;
     const r: Rating = {
@@ -77,7 +86,9 @@ export class RatingPool {
   }
 
   /**
-   * Match quality between two teams.
+   * Match quality between two teams, comparing their combined team Gaussians.
+   * Beta is scaled by sqrt(total players / 2) to match recordTeamMatch.
+   * Unknown ids are auto-registered.
    */
   teamMatchQuality(teamA: Team, teamB: Team): number {
     const gA = teamGaussian(teamA.map((id) => this.getPlayer(id)));
@@ -125,7 +136,9 @@ export class RatingPool {
   }
 
   /**
-   * Record a team match. teamA beat teamB (or drew).
+   * Record a team match: winningTeam beat losingTeam, or the two drew when
+   * isDraw is set. Each team is rated as one combined Gaussian, then the
+   * team-level change is distributed back to its members.
    */
   recordTeamMatch(
     winningTeam: Team,
@@ -182,7 +195,9 @@ export class RatingPool {
   /**
    * Record a free-for-all / multi-player result.
    * Each adjacent pair of ranks is compared (1st vs 2nd, 2nd vs 3rd, etc.).
-   * Equal ranks are treated as draws.
+   * Equal ranks are treated as draws. Pairs are applied sequentially via
+   * record1v1, so middle-ranked players are updated twice and appear twice
+   * in the returned deltas.
    */
   recordFreeForAll(entries: FreeForAllEntry[]): MatchUpdateResult {
     // Sort by rank ascending
@@ -205,14 +220,17 @@ export class RatingPool {
     return this.players.size;
   }
 
+  /** Whether the id is registered; unlike getPlayer, never auto-registers. */
   has(id: string): boolean {
     return this.players.has(id);
   }
 
+  /** Drop a player's rating; returns false if the id was not registered. */
   removePlayer(id: string): boolean {
     return this.players.delete(id);
   }
 
+  /** Remove every player; the resolved config is kept. */
   reset(): void {
     this.players.clear();
   }

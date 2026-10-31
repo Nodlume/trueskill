@@ -1,8 +1,13 @@
+/**
+ * Closed-form TrueSkill math for two-sided matches: the 1v1 mu/sigma update,
+ * 1v1 match quality, and helpers that collapse a team into one composite
+ * Gaussian and spread the composite's update back across its players.
+ */
 import type { Gaussian, ResolvedConfig } from "./types.js";
 import { vWin, wWin, vDraw, wDraw } from "./truncated.js";
 
 /**
- * Conservative skill estimate: mu - 3*sigma.
+ * Conservative skill estimate: mu - factor*sigma (factor defaults to 3).
  * This is the "display rating" in TrueSkill (e.g., Xbox Live uses this).
  */
 export function conservativeRating(g: Gaussian, factor: number = 3): number {
@@ -91,7 +96,10 @@ export function teamGaussian(players: Gaussian[]): Gaussian {
 
 /**
  * Distribute a team-level delta back to individual players proportional
- * to their uncertainty (sigma^2).
+ * to their uncertainty: each player's mu shift is weighted by their
+ * tau-inflated sigma^2 over oldTeam's sigma^2, and their tau-inflated sigma
+ * is scaled by newTeam.sigma / oldTeam.sigma. If oldTeam has zero sigma, the
+ * mu delta is split evenly and sigma is only inflated by tau.
  */
 export function distributeTeamDelta(
   players: Gaussian[],

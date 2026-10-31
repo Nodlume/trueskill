@@ -1,6 +1,6 @@
 {
   "name": "@quokkaquery/trueskill",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "TrueSkill Bayesian rating system — Gaussian skill beliefs, teams, free-for-all, match quality",
   "keywords": [
     "trueskill",

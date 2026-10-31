@@ -1,3 +1,9 @@
+/**
+ * Truncated-Gaussian correction functions (v for the mean, w for the
+ * variance) for win and draw outcomes. Each takes the difference t and the
+ * margin epsilon. When the normalising cdf term underflows below 1e-100, it
+ * returns a fixed fallback instead of dividing by it.
+ */
 import { pdf, cdf } from "./gaussian.js";
 
 /**
@@ -37,6 +43,8 @@ export function vDraw(t: number, epsilon: number): number {
 
 /**
  * W function for draw outcome.
+ * w_draw(t, epsilon) = ((epsilon - t) * pdf(epsilon - t) - (-epsilon - t) * pdf(-epsilon - t))
+ *                      / (cdf(epsilon - t) - cdf(-epsilon - t)) + v_draw(t, epsilon)^2
  */
 export function wDraw(t: number, epsilon: number): number {
   const diffUpper = epsilon - t;

@@ -1,3 +1,10 @@
+/**
+ * Turns a partial TrueSkillConfig into the concrete parameters the rating
+ * math needs. Defaults chain off each other (sigma from mu, beta and tau from
+ * sigma), so overriding only mu rescales every unset parameter with it. The
+ * draw probability is not kept as is: it is converted into the draw margin
+ * epsilon that the resolved config carries instead.
+ */
 import { ppf } from "./gaussian.js";
 import type { ResolvedConfig, TrueSkillConfig } from "./types.js";
 
